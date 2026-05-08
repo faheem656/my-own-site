@@ -1,0 +1,49 @@
+/* styles/variables.css */
+:root {
+  /* Dark Backgrounds */
+  --bg-primary: #0A0A0A;
+  --bg-secondary: #111111;
+  --bg-tertiary: #1A1A1A;
+  
+  /* Red Accents */
+  --red-primary: #FF0000;
+  --red-dark: #CC0000;
+  --red-light: #FF3333;
+  --red-glow: rgba(255, 0, 0, 0.25);
+  
+  /* White/Gray Scale */
+  --white-primary: #FFFFFF;
+  --white-secondary: #F5F5F5;
+  --gray-light: #CCCCCC;
+  --gray-medium: #999999;
+  --gray-dark: #666666;
+  
+  /* Gradients */
+  --gradient-red: linear-gradient(135deg, var(--red-primary), var(--red-dark));
+  --gradient-dark: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+  --gradient-red-glow: linear-gradient(135deg, var(--red-glow), transparent);
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 20px rgba(255, 0, 0, 0.15);
+  --shadow-lg: 0 8px 30px rgba(255, 0, 0, 0.25);
+  --shadow-red: 0 0 20px var(--red-glow);
+  
+  /* Blur Effects */
+  --blur-sm: blur(8px);
+  --blur-md: blur(12px);
+  --blur-lg: blur(20px);
+  
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Z-Index */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal: 1040;
+  --z-popover: 1050;
+  --z-tooltip: 1060;
+}

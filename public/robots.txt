@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
+
+Sitemap: https://fn-developers.com/sitemap.xml
+
+# Crawl delay (optional - be careful with this)
+# Crawl-delay: 1
+
+# Host (optional - specify your primary domain)
+Host: https://fn-developers.com
