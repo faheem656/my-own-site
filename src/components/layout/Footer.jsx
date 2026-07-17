@@ -1,166 +1,18 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import styles from "./Footer.module.css";
 import Image from "next/image";
 
 export default function Footer() {
-  const footerRef = useRef(null);
-  const footerInfoRef = useRef(null);
-  const footerNavRefs = useRef([]);
-  const footerConnectRef = useRef(null);
-  const footerBottomRef = useRef(null);
-  const shapesRef = useRef([]);
-
-  useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-
-    const timer = setTimeout(() => {
-      // Footer info animation
-      if (footerInfoRef.current) {
-        gsap.fromTo(
-          footerInfoRef.current,
-          { opacity: 0, y: 30 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            scrollTrigger: { trigger: footerRef.current, start: "top 90%" },
-          },
-        );
-      }
-
-      // Footer nav sections animation
-      footerNavRefs.current.forEach((nav, index) => {
-        if (nav) {
-          gsap.fromTo(
-            nav,
-            { opacity: 0, y: 30 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.8,
-              delay: index * 0.15,
-              scrollTrigger: { trigger: footerRef.current, start: "top 90%" },
-            },
-          );
-        }
-      });
-
-      // Footer connect animation
-      if (footerConnectRef.current) {
-        gsap.fromTo(
-          footerConnectRef.current,
-          { opacity: 0, y: 30 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            delay: 0.3,
-            scrollTrigger: { trigger: footerRef.current, start: "top 90%" },
-          },
-        );
-      }
-
-      // Footer bottom animation
-      if (footerBottomRef.current) {
-        gsap.fromTo(
-          footerBottomRef.current,
-          { opacity: 0, y: 20 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            delay: 0.4,
-            scrollTrigger: { trigger: footerRef.current, start: "top 90%" },
-          },
-        );
-      }
-
-      // Background shapes animation
-      shapesRef.current.forEach((shape, index) => {
-        if (shape) {
-          gsap.to(shape, {
-            x: "random(-25, 25)",
-            y: "random(-25, 25)",
-            rotation: "random(-15, 15)",
-            duration: "random(12, 25)",
-            repeat: -1,
-            yoyo: true,
-            ease: "sine.inOut",
-            delay: index * 0.5,
-          });
-        }
-      });
-    }, 100);
-
-    return () => {
-      clearTimeout(timer);
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-    };
-  }, []);
-
-  // Social icon hover animation
-  const handleSocialHover = (e, color) => {
-    gsap.to(e.currentTarget, {
-      scale: 1.2,
-      backgroundColor: color,
-      color: "#FFFFFF",
-      boxShadow: `0 10px 25px -5px ${color}80`,
-      duration: 0.3,
-      ease: "back.out(1.2)",
-    });
-  };
-
-  const handleSocialLeave = (e) => {
-    gsap.to(e.currentTarget, {
-      scale: 1,
-      backgroundColor: "transparent",
-      color: "#FFFFFF",
-      boxShadow: "0 0 0 0 rgba(0, 0, 0, 0)",
-      duration: 0.3,
-      ease: "power2.out",
-    });
-  };
-
-  // Link hover animation
-  const handleLinkHover = (e) => {
-    gsap.to(e.currentTarget, {
-      x: 5,
-      color: "#FF0000",
-      duration: 0.2,
-      ease: "power2.out",
-    });
-  };
-
-  const handleLinkLeave = (e) => {
-    gsap.to(e.currentTarget, {
-      x: 0,
-      color: "rgba(255, 255, 255, 0.7)",
-      duration: 0.2,
-      ease: "power2.out",
-    });
-  };
-
+  // Social icon hover simple effect (CSS se handle hoga, no GSAP)
   return (
-    <footer className={styles.footer} ref={footerRef}>
+    <footer className={styles.footer}>
       {/* Background decoration */}
       <div className={styles.bgDecoration}>
-        <div
-          className={styles.shape1}
-          ref={(el) => (shapesRef.current[0] = el)}
-        ></div>
-        <div
-          className={styles.shape2}
-          ref={(el) => (shapesRef.current[1] = el)}
-        ></div>
-        <div
-          className={styles.shape3}
-          ref={(el) => (shapesRef.current[2] = el)}
-        ></div>
+        <div className={styles.shape1}></div>
+        <div className={styles.shape2}></div>
+        <div className={styles.shape3}></div>
         <div className={styles.grid}></div>
         <div className={styles.particles}></div>
       </div>
@@ -169,7 +21,7 @@ export default function Footer() {
         {/* Main Footer Content */}
         <div className={styles.footerContent}>
           {/* Logo & Company Info */}
-          <div className={styles.footerInfo} ref={footerInfoRef}>
+          <div className={styles.footerInfo}>
             <Link href="/" className={styles.logo}>
               <div className={styles.logoWrapper}>
                 <Image
@@ -202,10 +54,7 @@ export default function Footer() {
           </div>
 
           {/* Quick Links */}
-          <div
-            className={styles.footerNav}
-            ref={(el) => (footerNavRefs.current[0] = el)}
-          >
+          <div className={styles.footerNav}>
             <h4 className={styles.footerNavTitle}>Quick Links</h4>
             <Link href="/services" className={styles.footerLink}>
               Services
@@ -225,10 +74,7 @@ export default function Footer() {
           </div>
 
           {/* Our Services */}
-          <div
-            className={styles.footerNav}
-            ref={(el) => (footerNavRefs.current[1] = el)}
-          >
+          <div className={styles.footerNav}>
             <h4 className={styles.footerNavTitle}>Our Services</h4>
             <Link
               href="/services/web-development"
@@ -260,7 +106,7 @@ export default function Footer() {
           </div>
 
           {/* Connect Section */}
-          <div className={styles.footerConnect} ref={footerConnectRef}>
+          <div className={styles.footerConnect}>
             <h4 className={styles.footerNavTitle}>Connect With Us</h4>
             <p className={styles.connectText}>
               Follow us on social media for the latest updates and insights.
@@ -271,51 +117,25 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.socialIcon}
-                onMouseEnter={(e) => handleSocialHover(e, "#1877F2")}
-                onMouseLeave={handleSocialLeave}
                 aria-label="Facebook"
               >
                 <span>f</span>
               </a>
-              {/* <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.socialIcon}
-                onMouseEnter={(e) => handleSocialHover(e, '#E4405F')}
-                onMouseLeave={handleSocialLeave}
-                aria-label="Instagram"
-              >
-                <span>ig</span>
-              </a> */}
               <a
                 href="https://www.linkedin.com/company/fndevelopersofficiall"
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.socialIcon}
-                onMouseEnter={(e) => handleSocialHover(e, "#0A66C2")}
-                onMouseLeave={handleSocialLeave}
                 aria-label="LinkedIn"
               >
                 <span>in</span>
               </a>
-              {/* <a
-                href="https://twitter.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.socialIcon}
-                onMouseEnter={(e) => handleSocialHover(e, '#000000')}
-                onMouseLeave={handleSocialLeave}
-                aria-label="Twitter"
-              >
-                <span>X</span>
-              </a> */}
             </div>
           </div>
         </div>
 
         {/* Footer Bottom */}
-        <div className={styles.footerBottom} ref={footerBottomRef}>
+        <div className={styles.footerBottom}>
           <div className={styles.copyright}>
             © {new Date().getFullYear()} FN Developers. All rights reserved.
           </div>

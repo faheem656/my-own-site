@@ -10,12 +10,10 @@ const POSTS_PER_PAGE = 6;
 export default function BlogClient({ allBlogs, initialCategories }) {
   const [activeCategory, setActiveCategory] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
-  const [displayedBlogs, setDisplayedBlogs] = useState([]);
   
   const categories = initialCategories;
 
-  // Filter blogs based on category (memoized for performance)
+  // Filter blogs based on category
   const filteredBlogs = useMemo(() => {
     if (activeCategory === 'all') {
       return allBlogs;
@@ -28,23 +26,12 @@ export default function BlogClient({ allBlogs, initialCategories }) {
     return Math.ceil(filteredBlogs.length / POSTS_PER_PAGE);
   }, [filteredBlogs]);
 
-  // Get current page blogs
+  // Get current page blogs - Direct, no loading state
   const currentBlogs = useMemo(() => {
     const start = (currentPage - 1) * POSTS_PER_PAGE;
     const end = start + POSTS_PER_PAGE;
     return filteredBlogs.slice(start, end);
   }, [filteredBlogs, currentPage]);
-
-  // Update displayed blogs with loading animation
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setDisplayedBlogs(currentBlogs);
-      setIsLoading(false);
-    }, 150);
-    
-    return () => clearTimeout(timer);
-  }, [currentBlogs]);
 
   // Reset to page 1 when category changes
   useEffect(() => {
@@ -66,7 +53,7 @@ export default function BlogClient({ allBlogs, initialCategories }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Generate pagination numbers (shows 5 pages max)
+  // Generate pagination numbers
   const getPageNumbers = useMemo(() => {
     const pages = [];
     const maxVisible = 5;
@@ -82,36 +69,6 @@ export default function BlogClient({ allBlogs, initialCategories }) {
     }
     return pages;
   }, [currentPage, totalPages]);
-
-  // Show skeleton loader on initial load
-  if (isLoading && displayedBlogs.length === 0) {
-    return (
-      <div className={styles.blogPage}>
-        <div className={styles.hero}>
-          <div className={styles.container}>
-            <h1 className={styles.heroTitle}>
-              Our <span className={styles.highlight}>Blog</span>
-            </h1>
-            <p className={styles.heroSubtitle}>
-              Loading amazing content for you...
-            </p>
-          </div>
-        </div>
-        <div className={styles.loaderGrid}>
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className={styles.skeletonCard}>
-              <div className={styles.skeletonImage}></div>
-              <div className={styles.skeletonContent}>
-                <div className={styles.skeletonTitle}></div>
-                <div className={styles.skeletonText}></div>
-                <div className={styles.skeletonFooter}></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={styles.blogPage}>
@@ -136,7 +93,6 @@ export default function BlogClient({ allBlogs, initialCategories }) {
                 key={category}
                 className={`${styles.categoryBtn} ${activeCategory === category ? styles.active : ''}`}
                 onClick={() => handleCategoryChange(category)}
-                disabled={isLoading}
               >
                 {category === 'all' ? 'All Posts' : category}
               </button>
@@ -148,20 +104,7 @@ export default function BlogClient({ allBlogs, initialCategories }) {
       {/* Blog Grid */}
       <section className={styles.blogGrid}>
         <div className={styles.container}>
-          {isLoading ? (
-            <div className={styles.loaderGrid}>
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className={styles.skeletonCard}>
-                  <div className={styles.skeletonImage}></div>
-                  <div className={styles.skeletonContent}>
-                    <div className={styles.skeletonTitle}></div>
-                    <div className={styles.skeletonText}></div>
-                    <div className={styles.skeletonFooter}></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : displayedBlogs.length === 0 ? (
+          {currentBlogs.length === 0 ? (
             <div className={styles.noPosts}>
               <p>No posts found in this category.</p>
               <p className={styles.noPostsHint}>Try selecting a different category.</p>
@@ -169,11 +112,12 @@ export default function BlogClient({ allBlogs, initialCategories }) {
           ) : (
             <>
               <div className={styles.grid}>
-                {displayedBlogs.map((blog) => (
+                {currentBlogs.map((blog) => (
                   <Link 
                     href={`/blog/${blog.slug}`} 
                     key={blog.id} 
                     className={styles.blogCard}
+                    prefetch={false} // Only prefetch on hover
                   >
                     <div className={styles.cardImage}>
                       {blog.featuredImage ? (
@@ -183,7 +127,9 @@ export default function BlogClient({ allBlogs, initialCategories }) {
                           width={400}
                           height={250}
                           className={styles.image}
-                          loading="lazy"
+                          loading="lazy" // Lazy load images
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          quality={75} // Reduce quality for faster loading
                         />
                       ) : (
                         <div className={styles.imagePlaceholder}>
@@ -216,7 +162,7 @@ export default function BlogClient({ allBlogs, initialCategories }) {
                 <div className={styles.pagination}>
                   <button
                     onClick={() => goToPage(currentPage - 1)}
-                    disabled={currentPage === 1 || isLoading}
+                    disabled={currentPage === 1}
                     className={styles.pageBtn}
                   >
                     ← Prev
@@ -227,7 +173,6 @@ export default function BlogClient({ allBlogs, initialCategories }) {
                       key={page}
                       onClick={() => goToPage(page)}
                       className={`${styles.pageBtn} ${currentPage === page ? styles.active : ''}`}
-                      disabled={isLoading}
                     >
                       {page}
                     </button>
@@ -235,7 +180,7 @@ export default function BlogClient({ allBlogs, initialCategories }) {
                   
                   <button
                     onClick={() => goToPage(currentPage + 1)}
-                    disabled={currentPage === totalPages || isLoading}
+                    disabled={currentPage === totalPages}
                     className={styles.pageBtn}
                   >
                     Next →

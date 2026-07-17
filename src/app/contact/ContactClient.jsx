@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import gsap from 'gsap';
-import emailjs from '@emailjs/browser';
 import styles from './page.module.css';
 
 export default function ContactClient() {
@@ -26,11 +25,6 @@ export default function ContactClient() {
   const infoRef = useRef(null);
   const inputsRef = useRef([]);
   const formElementRef = useRef(null);
-
-  // EmailJS initialization
-  useEffect(() => {
-    emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY);
-  }, []);
 
   useEffect(() => {
     // GSAP Animations
@@ -79,52 +73,91 @@ export default function ContactClient() {
     });
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsSubmitting(true);
-  setError('');
+  // ✅ FIXED: Working Web3Forms submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
 
-  try {
-    const response = await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-      setIsSubmitted(true);
-      setFormData({ name: '', email: '', phone: '', service: '', budget: '', message: '' });
-      setTimeout(() => setIsSubmitted(false), 5000);
-    } else {
-      setError(result.message || 'Failed to send message');
+    // Validate required fields
+    if (!formData.name || !formData.email || !formData.message) {
+      setError('Please fill all required fields (*)');
+      setIsSubmitting(false);
+      return;
     }
-  } catch (error) {
-    console.error('Error:', error);
-    setError('Network error. Please try again.');
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address');
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      // Using FormData instead of JSON (Web3Forms prefers this)
+      const web3FormData = new FormData();
+      web3FormData.append('access_key', '8ed2c99b-a12d-49a4-904e-87a7b7be89cc');
+      web3FormData.append('name', formData.name);
+      web3FormData.append('email', formData.email);
+      web3FormData.append('phone', formData.phone || 'Not provided');
+      web3FormData.append('service', formData.service || 'Not specified');
+      web3FormData.append('budget', formData.budget || 'Not specified');
+      web3FormData.append('message', formData.message);
+      web3FormData.append('subject', `New Contact from ${formData.name}`);
+
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: web3FormData // Don't set Content-Type header, browser will handle it
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setIsSubmitted(true);
+        setFormData({ 
+          name: '', 
+          email: '', 
+          phone: '', 
+          service: '', 
+          budget: '', 
+          message: '' 
+        });
+        // Reset form fields
+        e.target.reset();
+        setTimeout(() => setIsSubmitted(false), 5000);
+      } else {
+        // Show specific error message from Web3Forms
+        const errorMsg = result.message || 'Failed to send message. Please check your access key.';
+        setError(errorMsg);
+        console.error('Web3Forms Error:', result);
+      }
+    } catch (error) {
+      console.error('Network Error:', error);
+      setError('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const services = [
-    { value: 'web', label: 'Web Development' },
-    { value: 'app', label: 'Mobile App Development' },
-    { value: 'social', label: 'Social Media Management' },
-    { value: 'design', label: 'UI/UX Design' },
+    { value: 'Web Development', label: 'Web Development' },
+    { value: 'Mobile App Development', label: 'Mobile App Development' },
+    { value: 'Social Media Management', label: 'Social Media Management' },
+    { value: 'UI/UX Design', label: 'UI/UX Design' },
     { value: 'other', label: 'Other' }
   ];
 
-const budgets = [
-  { value: '500-1000', label: '$500 - $1,000' },
-  { value: '1000-2500', label: '$1,000 - $2,500' },
-  { value: '2500-5000', label: '$2,500 - $5,000' },
-  { value: '5000-10000', label: '$5,000 - $10,000' },
-  { value: '10000-20000', label: '$10,000 - $20,000' },
-  { value: '20000-plus', label: '$20,000+' },
-  { value: 'Not sure yet', label: 'Not sure yet' }
-];
+  const budgets = [
+    { value: '$500 - $1,000', label: '$500 - $1,000' },
+    { value: '$1,000 - $2,500', label: '$1,000 - $2,500' },
+    { value: '$2,500 - $5,000', label: '$2,500 - $5,000' },
+    { value: '$5,000 - $10,000', label: '$5,000 - $10,000' },
+    { value: '$10,000 - $20,000', label: '$10,000 - $20,000' },
+    { value: '$20,000+', label: '$20,000+' },
+    { value: 'Not sure yet', label: 'Not sure yet' }
+  ];
+
   return (
     <div className={styles.contactPage} ref={pageRef}>
       {/* Hero Section */}
@@ -325,10 +358,8 @@ const budgets = [
                 <div className={styles.socialLinks}>
                   <h4>Follow Us</h4>
                   <div className={styles.socialIcons}>
-                    <a href="#" className={styles.socialIcon}>f</a>
-                    <a href="#" className={styles.socialIcon}>ig</a>
-                    <a target='_blank' href="https://www.linkedin.com/company/fndevelopers" className={styles.socialIcon}>in</a>
-                    <a href="#" className={styles.socialIcon}>X</a>
+                    <a target='_blank' href="https://www.facebook.com/fndevelopersofficiall" className={styles.socialIcon}>f</a>
+                    <a target='_blank' href="https://www.linkedin.com/company/fndevelopersofficiall" className={styles.socialIcon}>in</a>
                   </div>
                 </div>
               </div>

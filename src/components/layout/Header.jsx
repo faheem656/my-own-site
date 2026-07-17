@@ -17,8 +17,9 @@ export default function Header() {
   const ctaRef = useRef(null);
   const mobileMenuRef = useRef(null);
 
-  const isActive = (path) => pathname === path;
-
+const isActive = (path) => {
+  return pathname === path || pathname === `${path}/`;
+};
   // Scroll effect
   useEffect(() => {
     const handleScroll = () => {
